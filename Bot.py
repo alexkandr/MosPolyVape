@@ -31,9 +31,9 @@ def start(message, res=False):
     key_contact = types.KeyboardButton('Связь')
     keyboard.add(key_contact)
     
-    bot.send_message(message.from_user.id, 
-        text = 'Это бот для покупки парилок в общаге. feel free to contact us^ enjoy the ПЫХ', 
-        reply_markup=keyboard )
+    bot.send_photo(message.from_user.id, photo=open('./source/img/Welcome_Image.png', 'rb'),
+        caption= 'Это бот для покупки парилок в общаге. feel free to contact us^ enjoy the ПЫХ', 
+        reply_markup=keyboard)
 
 @bot.message_handler(content_types=['text'])
 def main_menu(message):
@@ -63,14 +63,12 @@ def catalog_menu(message):
     keyboard.add(key_g4000)
 
     bot.send_photo(message.from_user.id, photo=open('./source/img/Catalog.png', 'rb'),
-        caption= 'Выберите категорию', 
         reply_markup=keyboard )
 
 def cart_menu(message):
     cart_mess = cart_to_string(cart)
     if cart == {}:
-        bot.send_photo(message.from_user.id, photo=open('./source/img/Catalogs.png', 'rb'),
-        caption= cart_mess)
+        bot.send_photo(message.from_user.id, photo=open('./source/img/Empty_cart.png', 'rb'))
         return 
 
     keyboard = types.InlineKeyboardMarkup()
@@ -81,19 +79,21 @@ def cart_menu(message):
     key_buy = types.InlineKeyboardButton(text='Купить', callback_data='buy')
     keyboard.add(key_buy)
 
-    bot.send_photo(message.from_user.id, photo=open('./source/img/Catalogs.png', 'rb'),
+    bot.send_photo(message.from_user.id, photo=open('./source/img/Cart.png', 'rb'),
         caption= cart_mess, reply_markup=keyboard)
 
 def addres_menu(message):
     if room_number == 0:
-        m = 'Мы пока не знаем твою комнату('
+        m = ''
+        photo = open('./source/img/No_address.png', 'rb')
     else:
         m = 'Твоя комната - ' + room_number
+        photo = open('./source/img/Address.png', 'rb')
     keyboard = types.InlineKeyboardMarkup()
     key_change_addres = types.InlineKeyboardButton(text='Изменить', callback_data='change')
     keyboard.add(key_change_addres)
 
-    bot.send_photo(message.from_user.id, photo=open('./source/img/Addres.png', 'rb'),
+    bot.send_photo(message.from_user.id, photo=photo,
         caption= m, reply_markup=keyboard)
 
 
