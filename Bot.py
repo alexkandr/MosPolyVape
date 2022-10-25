@@ -4,13 +4,14 @@ from telebot import types
 bot = telebot.TeleBot('5612788804:AAF5Qf8SC1yLjinjGsnGGaDbhI39drR1Uw4')
 
 cart = dict()
+room_number = 0
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
     print(call.data)
     match call.data:
-        case 'buy':
-            bot.register_next_step_handler(call.message, buy_menu)
+        #case 'buy':
+            
         case _:
             print('from default')
             bot.send_message(call.message.chat.id, text='что-то пошло не так')
@@ -18,8 +19,8 @@ def callback_handler(call):
 @bot.message_handler(commands=['start'])
 def start(message, res=False):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    key_buy = types.KeyboardButton('Купить')
-    keyboard.add(key_buy)
+    key_cat = types.KeyboardButton('Каталог')
+    keyboard.add(key_cat)
 
     key_cart = types.KeyboardButton('Корзина')
     keyboard.add(key_cart)
@@ -37,8 +38,8 @@ def start(message, res=False):
 @bot.message_handler(content_types=['text'])
 def main_menu(message):
     match message.text:
-        case 'Купить':
-            categories_menu(message)
+        case 'Каталог':
+            catalog_menu(message)
         case 'Связь':
             contact_us_menu(message)
         case 'Корзина':
@@ -49,7 +50,7 @@ def main_menu(message):
 
             bot.send_message(message.from_user.id, text='что-то пошло не так')
 
-def categories_menu(message):
+def catalog_menu(message):
     keyboard = types.InlineKeyboardMarkup()
     key_l1000 = types.InlineKeyboardButton(text='До 1000 затяжек', callback_data='l1000')
     keyboard.add(key_l1000)
@@ -84,7 +85,15 @@ def cart_menu(message):
     bot.send_message(message.from_user.id, 
         text = cart_mess, reply_markup=keyboard)
 
-#def addres_menu(message):
+def addres_menu(message):
+    if room_number == 0:
+        m = 'Мы пока не знаем твою комнату('
+    else:
+        m = 'Твоя комната - ' + room_number
+    keyboard = types.InlineKeyboardMarkup()
+    key_change_addres = types.InlineKeyboardButton(text='Изменить', callback_data='change')
+    keyboard.add(key_change_addres)
+    bot.send_message(message.from_user.id, m, reply_markup=keyboard)
 
 
 def contact_us_menu(message):
