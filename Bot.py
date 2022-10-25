@@ -1,7 +1,13 @@
 import telebot
 from telebot import types
+import pandas as pd
+
 
 bot = telebot.TeleBot('5612788804:AAF5Qf8SC1yLjinjGsnGGaDbhI39drR1Uw4')
+sheet_id = '17p7K08b8-ZGduTy2fgv8IFP6jgdqmidvRH0E6_JQO-Y'
+sheet_name = 'Main'
+url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
+data = pd.read_csv(url).reset_index()
 
 cart = dict()
 room_number = 0
@@ -10,8 +16,14 @@ room_number = 0
 def callback_handler(call):
     print(call.data)
     match call.data:
-        #case 'buy':
-            
+        case 'l1000':
+            show_cat('l1000', call.message)
+        case 'l2000':
+            show_cat('l2000', call.message)
+        case 'l4000':
+            show_cat('l4000', call.message)
+        case 'g4000':
+            show_cat('g4000', call.message)
         case _:
             print('from default')
             error(call.message)
@@ -48,6 +60,7 @@ def main_menu(message):
             addres_menu(message)
         case _:
             error(message)
+
 def catalog_menu(message):
     keyboard = types.InlineKeyboardMarkup()
     key_l1000 = types.InlineKeyboardButton(text='До 1000 затяжек', callback_data='l1000')
@@ -108,6 +121,59 @@ def contact_us_menu(message):
         caption= 'Что-то не нравится - отсоси ^_^ \n Нахваливать только сообщениями от 1000 символов',
         reply_markup=keyboard)
 
+def show_cat(which, message):
+    def none(message):
+        bot.send_message(message.chat.id, text='Здесь пока ничего нет')
+    def desc(row):
+        return row.e_name + '\n' + row.description + '\nВкус    '+ row.taste +'\nТяжек' + str(row.tyazhek) + '\nЦена    ' + str(row.price) + ' рублей'
+    match which:
+        case 'l1000':            
+            showing_data = data[data.tyazhek <= 1000]
+            if showing_data.empty:
+                none(message)
+                return
+            for id, d in showing_data.iterrows():
+                bot.send_photo( message.chat.id, 
+                photo=d.image,
+                caption= desc(d))
+
+        case 'l2000':            
+            showing_data = data[data.tyazhek.isin(range(1000,2000))]
+            
+            if showing_data.empty:
+                none(message)
+                return
+
+            for id, d in showing_data.iterrows():
+                bot.send_photo( message.chat.id, 
+                photo=d.image,
+                caption= desc(d) )
+        case 'l4000':            
+            showing_data = data[data.tyazhek.isin(range(2000,4000))]
+            
+            if showing_data.empty:
+                none(message)
+                return
+
+            for id, d in showing_data.iterrows():
+                bot.send_photo( message.chat.id, 
+                photo=d.image,
+                caption= desc(d) )
+
+        case 'g4000':            
+            showing_data = data[data.tyazhek >= 4000]
+            
+            if showing_data.empty:
+                none(message)
+                return
+
+            for id, d in showing_data.iterrows():
+                bot.send_photo( message.chat.id, 
+                photo=d.image,
+                caption= desc(d) )
+        case _:
+            error(message)
+
 def cart_to_string(cart):
     if cart == {}:
         return 'Ваша корзина пуста'
@@ -117,7 +183,7 @@ def cart_to_string(cart):
     return res
 
 def error(message):
-    bot.send_photo(message.from_user.id, photo=open('/source/img/Error.png', 'rb'), caption='что-то пошло не так')
+    bot.send_photo(message.chat.id, photo=open('./source/img/Error.png', 'rb'), caption='что-то пошло не так')
 
 bot.infinity_polling()
 
