@@ -1,9 +1,10 @@
-import telebot
+import os
+import telebot as tele_bot
 from telebot import types
 import pandas as pd
 
-
-bot = telebot.TeleBot('5612788804:AAF5Qf8SC1yLjinjGsnGGaDbhI39drR1Uw4')
+TOKEN = os.getenv('BOT_TOKEN')
+bot = tele_bot.TeleBot(TOKEN)
 sheet_id = '17p7K08b8-ZGduTy2fgv8IFP6jgdqmidvRH0E6_JQO-Y'
 sheet_name = 'Main'
 url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
@@ -29,19 +30,17 @@ def callback_handler(call):
             error(call.message)
 
 @bot.message_handler(commands=['start'])
-def start(message, res=False):
+def start(message):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     key_cat = types.KeyboardButton('Каталог')
-    keyboard.add(key_cat)
 
     key_cart = types.KeyboardButton('Корзина')
-    keyboard.add(key_cart)
+    keyboard.add(key_cat, key_cart)
 
-    key_addres = types.KeyboardButton('Адрес')
-    keyboard.add(key_addres)
+    key_address = types.KeyboardButton('Адрес')
 
     key_contact = types.KeyboardButton('Связь')
-    keyboard.add(key_contact)
+    keyboard.add(key_address, key_contact)
     
     bot.send_photo(message.from_user.id, photo=open('./source/img/Welcome_Image.png', 'rb'),
         caption= 'Это бот для покупки парилок в общаге. feel free to contact us^ enjoy the ПЫХ', 
