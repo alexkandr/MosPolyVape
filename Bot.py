@@ -1,10 +1,10 @@
 import os
-import telebot as tele_bot
+import telebot as telebot
 from telebot import types
 import pandas as pd
 
 TOKEN = os.getenv('BOT_TOKEN')
-bot = tele_bot.TeleBot(TOKEN)
+bot = telebot.TeleBot(TOKEN)
 sheet_id = '17p7K08b8-ZGduTy2fgv8IFP6jgdqmidvRH0E6_JQO-Y'
 sheet_name = 'Main'
 url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
