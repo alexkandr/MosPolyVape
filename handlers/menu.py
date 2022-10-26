@@ -1,5 +1,5 @@
 from aiogram import Router
-from aiogram.types import Message, KeyboardButton, InlineKeyboardButton, ContentType
+from aiogram.types import Message, KeyboardButton, InlineKeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 from aiogram.dispatcher.filters import Text
 from aiogram.types import FSInputFile
@@ -7,13 +7,11 @@ from aiogram.types import FSInputFile
 router = Router()
 @router.message(commands=["start"])
 async def start(message : Message):
-    
     #ReplyKeyboard setup
     builder = ReplyKeyboardBuilder()
-    builder.add( KeyboardButton('Каталог'), KeyboardButton('Корзина'), 
-        KeyboardButton('Адрес'), KeyboardButton('Связь'))
+    for name in ['Каталог', 'Корзина', 'Адрес', 'Связь']:
+        builder.add(KeyboardButton(text=name))
     builder.adjust(2)
-
     #answer
     await message.answer_photo(photo=FSInputFile('./source/img/Welcome_Image.png'),
         caption= 'Это бот для покупки парилок в общаге. feel free to contact us^ enjoy the ПЫХ', 

@@ -1,6 +1,6 @@
 from os import getenv
 from aiogram import Router, html
-from aiogram.types import Message, InlineKeyboardButton, CallbackQuery
+from aiogram.types import Message, InlineKeyboardButton, CallbackQuery, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.dispatcher.filters import Text
 from aiogram.types import FSInputFile, URLInputFile
@@ -9,7 +9,7 @@ import pandas as pd
 router = Router()
 
 #data from google sheets
-SHEET_ID = getenv('SHEET_ID')
+SHEET_ID =  getenv('SHEET_ID') if getenv("SHEET_ID") is str else open('tokens.txt', 'r').readlines()[1] 
 SHEET_NAME = 'Main'
 data_url = f'https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={SHEET_NAME}'
 data = pd.read_csv(data_url).reset_index()
@@ -34,17 +34,18 @@ async def catalog_menu(message : Message):
 @router.callback_query(Text(text_startswith='catalog_'))
 async def show_catalog(call : CallbackQuery):
     
-    #Choose right items
+    #Choose appropriate items
     _filter = call.data.split('_')[1]
+    showing_data = data[data.avaible > 0]
     match _filter:
         case 'lt1000':
-            showing_data = data[data.puffs <= 1000]
+            showing_data = showing_data[showing_data.puffs <= 1000]
         case 'lt2000':
-            showing_data = data[data.puffs.isin(range(1000,2000))]
+            showing_data = showing_data[showing_data.puffs.isin(range(1000,2000))]
         case 'lt4000':
-            showing_data = data[data.puffs.isin(range(2000,4000))]
+            showing_data = showing_data[showing_data.puffs.isin(range(2000,4000))]
         case 'gt4000':
-            showing_data = data[data.puffs >= 4000]
+            showing_data = showing_data[showing_data.puffs >= 4000]
     
     #Check for empty
     if showing_data.empty:
@@ -54,14 +55,8 @@ async def show_catalog(call : CallbackQuery):
 
     #Show items
     for index, item in showing_data.iterrows():
-        await call.message.answer_photo( photo= URLInputFile(item.image), caption= show_item(item))
+        keyboard = InlineKeyboardMarkup()
+        keyboard
+        await call.message.answer_photo(photo= URLInputFile(item.image), caption=(item.description))
 
     await call.answer()
-
-#Beautiful item information
-def show_item(item : pd.Series) -> str:
-    return (f"{item._name}\n" 
-            f"{item.description}\n" 
-            f"Вкус    {item.taste}\n" 
-            f"Тяжек   {item.puffs}\n" 
-            f"Цена    {html.italic(item.price)} рублей")

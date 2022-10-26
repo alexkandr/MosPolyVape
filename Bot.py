@@ -1,9 +1,11 @@
 from os import getenv
 import asyncio
+from types import NoneType
 from aiogram import Dispatcher, Bot
 from handlers import menu, catalog, cart, address
+from db.postgre import postgredb
 
-TOKEN = getenv('BOT_TOKEN')
+TOKEN =  getenv('BOT_TOKEN') if (getenv('BOT_TOKEN') is str) else open('tokens.txt', 'r').readline().split('\n')[0]
 
 async def main():
 
@@ -14,7 +16,8 @@ async def main():
     dp.include_router(catalog.router)
     dp.include_router(cart.router)
     dp.include_router(address.router)
-
+    
+    await postgredb.create_pool()
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
