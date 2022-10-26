@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters import Text
 from aiogram.types import FSInputFile
 
 router = Router()
-@router.message(commands="start")
+@router.message(commands=["start"])
 async def start(message : Message):
     
     #ReplyKeyboard setup
