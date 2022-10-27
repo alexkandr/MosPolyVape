@@ -3,7 +3,7 @@ import psycopg
 from models.item import parilka
 from psycopg.rows import class_row
 
-DATABASE_URL = getenv('DATABASE_URL') if getenv('DATABASE_URL') is str else open('tokens.txt', 'r').readlines()[2].strip()
+DATABASE_URL = getenv('DATABASE_URL') if getenv('DATABASE_URL') is not None else open('tokens.txt', 'r').readlines()[2].strip()
 
 class DataBase:
     def __init__(self):
@@ -49,15 +49,18 @@ class DataBase:
     def select_by_puffs(self, how_many : str) -> list[parilka]:
         match how_many:
             case 'lt1000':
-                where = 'where puffs <= 1000'
+                where = 'where puffs <= 1000 and avaible > 0'
             case 'lt2000':
-                where = 'where puffs >= 1000 and puffs <= 2000'
+                where = 'where puffs >= 1000 and puffs <= 2000 and avaible > 0'
             case 'lt4000':
-                where = 'where puffs >= 2000 and puffs <= 4000'
+                where = 'where puffs >= 2000 and puffs <= 4000 and avaible > 0'
             case 'gt4000':
-                where = 'where puffs >= 4000'
+                where = 'where puffs >= 4000 and avaible > 0'
         with self.conn.cursor(row_factory=class_row(parilka)) as cur:
             return cur.execute(f'select * from sklad {where}').fetchall()
-
+    
+    def select_by_id(self, item_id : int) -> parilka:
+        with self.conn.cursor(row_factory=class_row(parilka)) as cur:
+            return cur.execute(f'select * from sklad where id = {item_id}').fetchone()
 
 postgredb = DataBase()

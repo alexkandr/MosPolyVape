@@ -4,9 +4,7 @@ from types import NoneType
 from aiogram import Dispatcher, Bot
 from handlers import menu, catalog, cart, address
 
-TOKEN =  getenv('BOT_TOKEN') if (getenv('BOT_TOKEN') is str) else open('tokens.txt', 'r').readline().strip()
-
-print(getenv('BOT_TOKEN') is str)
+TOKEN =  getenv('BOT_TOKEN') if (getenv('BOT_TOKEN') is not None) else open('tokens.txt', 'r').readline().strip()
 
 async def main():
 
