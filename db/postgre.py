@@ -4,21 +4,14 @@ import asyncpg
 from asyncpg import Connection
 from asyncpg.pool import Pool
 
+DATABASE_URL = getenv('DATABASE_URL') #if getenv('DATABASE_URL') is str else open('tokens.txt', 'r').readlines()[2].strip()
 
 class DataBase:
     def __init__(self):
         self.pool: Union[Pool, None] = None
 
     async def create_pool(self):
-        self.pool = await asyncpg.create_pool(getenv('DATABASE_ID'))
-        await self.execute('''create table if not exists SKLAD(
-            Id serial primary key,
-            name character varying(30),
-            description character varying(200),
-            image character varying(100),
-            taste character varying(30),
-            puffs integer,
-            avaible integer''')
+        self.pool = await asyncpg.create_pool(DATABASE_URL)
 
     async def execute(self, command: str, *args,
                       fetch: bool = False,

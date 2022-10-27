@@ -5,7 +5,8 @@ from aiogram import Dispatcher, Bot
 from handlers import menu, catalog, cart, address
 from db.postgre import postgredb
 
-TOKEN =  getenv('BOT_TOKEN')# if (getenv('BOT_TOKEN') is str) else open('tokens.txt', 'r').readline().split('\n')[0]
+TOKEN =  getenv('BOT_TOKEN') #if (getenv('BOT_TOKEN') is str) else open('tokens.txt', 'r').readline().strip()
+
 print(getenv('BOT_TOKEN') is str)
 
 async def main():

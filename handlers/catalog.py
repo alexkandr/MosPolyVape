@@ -9,7 +9,7 @@ import pandas as pd
 router = Router()
 
 #data from google sheets
-SHEET_ID =  getenv('SHEET_ID') #if getenv('SHEET_ID') is str else open('tokens.txt', 'r').readlines()[1] 
+SHEET_ID =  getenv('SHEET_ID') #if getenv('SHEET_ID') is str else open('tokens.txt', 'r').readlines()[1].strip()
 SHEET_NAME = 'Main'
 data_url = f'https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={SHEET_NAME}'
 data = pd.read_csv(data_url).reset_index()
