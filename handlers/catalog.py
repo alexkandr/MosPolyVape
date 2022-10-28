@@ -4,7 +4,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.dispatcher.filters import Text
 from aiogram.types import FSInputFile, URLInputFile
 from db.postgre import postgredb
-from models.itemCallbackFactory import ItemCallbackFactory
+from models.ItemCallbackFactory import ItemCallbackFactory
 from keyboards.keyboards import catalog_keyboard, item_keyboard
 
 router = Router()
