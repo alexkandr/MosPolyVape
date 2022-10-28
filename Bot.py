@@ -1,6 +1,5 @@
 from os import getenv
 import asyncio
-from types import NoneType
 from aiogram import Dispatcher, Bot
 from handlers import menu, catalog, cart, address
 
@@ -21,5 +20,3 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
-
-

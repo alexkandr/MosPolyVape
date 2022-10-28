@@ -2,6 +2,7 @@ from os import getenv
 import psycopg
 from models.item import parilka
 from psycopg.rows import class_row
+from psycopg.rows import dict_row
 
 DATABASE_URL = getenv('DATABASE_URL') if getenv('DATABASE_URL') is not None else open('tokens.txt', 'r').readlines()[2].strip()
 
@@ -62,5 +63,21 @@ class DataBase:
     def select_by_id(self, item_id : int) -> parilka:
         with self.conn.cursor(row_factory=class_row(parilka)) as cur:
             return cur.execute(f'select * from sklad where id = {item_id}').fetchone()
+
+    def get_addresses_by_user_id(self, user_id : int) -> list[dict]:
+        with self.conn.cursor(row_factory=dict_row) as cur:
+            return cur.execute(f'select * from addresses where user_id = {user_id}').fetchall()
+
+    def delete_addresses_by_user_id(self, user_id : int):
+        with self.conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(f'delete from addresses where user_id = {user_id}')
+
+    def delete_address(self, user_id : int, obshaga : int, room_number : int):
+        with self.conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(f'delete from addresses where user_id = {user_id} and room_number={room_number} and obshaga = {obshaga}')
+    
+    def add_address(self, user_id : int, obshaga : int, room_number : int):
+        with self.conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(f'insert into addresses (user_id, room_number, obshaga) values({user_id}, {room_number}, {obshaga})')
 
 postgredb = DataBase()
