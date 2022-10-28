@@ -1,4 +1,4 @@
-from aiogram.types import ReplyKeyboardMarkup,InlineKeyboardMarkup
+from aiogram.types import ReplyKeyboardMarkup,InlineKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from models.addressCallBackFactory import AddressCallbackFactory
 from models.itemCallbackFactory import ItemCallbackFactory
@@ -48,10 +48,10 @@ def menu_keyboard() -> ReplyKeyboardMarkup:
     
     builder = ReplyKeyboardBuilder()    
     for name in ['Каталог', 'Корзина', 'Адрес', 'Связь']:
-        builder.button(text=name)
+        builder.add(KeyboardButton(text=name))
     builder.adjust(2)
 
-    return builder.as_markup()
+    return builder.as_markup(resize_keyboard=True)
 
 def contactus_keyboard() -> InlineKeyboardMarkup:
 
@@ -61,7 +61,7 @@ def contactus_keyboard() -> InlineKeyboardMarkup:
 
     builder.adjust(2)
 
-    return builder.as_markup()
+    return builder.as_markup(resize_keyboard=True)
 
 
 
@@ -92,4 +92,4 @@ def item_keyboard(amount : int, item_id : int) -> InlineKeyboardMarkup:
     
     builder.adjust(3)
 
-    return builder.as_markup()
+    return builder.as_markup(resize_keyboard=True)

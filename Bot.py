@@ -8,7 +8,7 @@ TOKEN =  getenv('BOT_TOKEN') if (getenv('BOT_TOKEN') is not None) else open('tok
 async def main():
 
     bot = Bot(token=TOKEN, parse_mode='HTML')
-    dp = Dispatcher()
+    dp = Dispatcher() 
 
     dp.include_router(menu.router)
     dp.include_router(catalog.router)
