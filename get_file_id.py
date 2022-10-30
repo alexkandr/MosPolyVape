@@ -1,3 +1,4 @@
+from lib2to3.pgen2 import token
 import os
 import asyncio
 import logging
@@ -10,6 +11,7 @@ bot = Bot(token=open('tokens.txt', 'r').readline().strip())
 
 BASE_MEDIA_PATH = './source'
 
+MY_ID = token=open('tokens.txt', 'r').readlines()[4]
 
 async def uploadMediaFiles(folder, method, file_attr):
     folder_path = os.path.join(BASE_MEDIA_PATH, folder)
@@ -37,4 +39,3 @@ wait_tasks = asyncio.wait(tasks)
 
 loop.run_until_complete(wait_tasks)
 loop.close()
-Session.remove()

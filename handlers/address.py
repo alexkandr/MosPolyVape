@@ -4,8 +4,8 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from models.addressCallBackFactory import AddressCallbackFactory
 from aiogram.types import FSInputFile
-from aiogram.dispatcher.fsm.context import FSMContext
-from aiogram.dispatcher.filters import Text
+from aiogram.fsm.context import FSMContext
+from aiogram.filters import Text
 from db.postgre import postgredb
 from models.adressFSM import AddressState
 from keyboards.keyboards import addresses_keyboard, obshaga_keyboard , menu_keyboard, cancel_keyboard

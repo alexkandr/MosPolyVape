@@ -1,6 +1,8 @@
 from os import getenv
 import asyncio
 from aiogram import Dispatcher, Bot
+from aiogram.fsm.strategy import FSMStrategy
+from aiogram.fsm.storage.memory import MemoryStorage
 from handlers import menu, catalog, cart, address
 
 TOKEN =  getenv('BOT_TOKEN') if (getenv('BOT_TOKEN') is not None) else open('tokens.txt', 'r').readline().strip()
@@ -8,7 +10,7 @@ TOKEN =  getenv('BOT_TOKEN') if (getenv('BOT_TOKEN') is not None) else open('tok
 async def main():
 
     bot = Bot(token=TOKEN, parse_mode='HTML')
-    dp = Dispatcher() 
+    dp = Dispatcher(fsm_strategy=FSMStrategy.USER_IN_CHAT, storage=MemoryStorage()) 
 
     dp.include_router(menu.router)
     dp.include_router(catalog.router)

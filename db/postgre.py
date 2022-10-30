@@ -4,7 +4,7 @@ from models.item import parilka
 from psycopg.rows import class_row
 from psycopg.rows import dict_row
 
-DATABASE_URL = getenv('DATABASE_URL') if getenv('DATABASE_URL') is not None else open('tokens.txt', 'r').readlines()[2].strip()
+DATABASE_URL = getenv('DATABASE_URL') if getenv('DATABASE_URL') is not None else open('tokens.txt', 'r').readlines()[1].strip()
 
 class DataBase:
     def __init__(self):
