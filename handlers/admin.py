@@ -11,8 +11,8 @@ from models.item import parilka
 
 router = Router()
 
-ADMIN_CHAT_ID = getenv('SPECIAL_CHATS') if (getenv('SPECIAL_CHATS') is not None) else open('tokens.txt', 'r').readlines()[2]
-
+ADMIN_CHAT_ID = getenv('ADMIN_CHAT_ID') if (getenv('ADMIN_CHAT_ID') is not None) else open('tokens.txt', 'r').readlines()[2]
+ADMIN_CHAT_ID = [int(ADMIN_CHAT_ID)]
 
 @router.message(Command(commands=['add']), F.chat.id.in_(ADMIN_CHAT_ID))
 async def add_item(message : Message, state : FSMContext):

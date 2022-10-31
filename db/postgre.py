@@ -69,4 +69,28 @@ class DataBase:
         with self.conn.cursor(row_factory=dict_row) as cur:
             cur.execute(f'insert into addresses (user_id, room_number, obshaga) values({user_id}, {room_number}, {obshaga})')
 
+    def add_new_parilkas(self, item : parilka) -> None:
+        with self.conn.cursor() as cur:
+            cur.execute(
+                '''insert into sklad (name, description, image, taste, puffs, price, avaible) 
+                values (%s, %s, %s, %s, %s, %s, %s)''', 
+                item.values_as_tuple() )
+
+    def add_existing_parilkas(self, id : int, amount : int) -> None:
+        with self.conn.cursor() as cur:
+            cur.execute(
+                '''update sklad set avaible = avaible + %s where Id = %s''', (amount, id) )
+
+    def select_all(self) -> list[parilka]:
+        with self.conn.cursor(row_factory=class_row(parilka)) as cur:
+            return cur.execute('''select * from sklad''').fetchall()
+
+    def select_all_names(self) -> list[dict]:
+        with self.conn.cursor(row_factory=dict_row) as cur:
+            return cur.execute('''select id, name from sklad''').fetchall()
+
+    def delete_by_item_id(self, id : int) -> None:
+        with self.conn.cursor() as cur:
+            cur.execute(f''' delete from sklad where id = {id}''')
+
 postgredb = DataBase()

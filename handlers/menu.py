@@ -10,9 +10,9 @@ router = Router()
 async def start(message : Message):
     
     m = await message.answer_photo(photo=FSInputFile('./source/img/Welcome_Image.png'),
-        caption= f'Это бот для покупки парилок в общаге. feel free to contact us^ enjoy the ПЫХ {message.chat.id}', 
+        caption= f'Это бот для покупки парилок в общаге. feel free to contact us^ enjoy the ПЫХ', 
         reply_markup= menu_keyboard())
-    print(m.from_user.id)    
+    print({message.chat.id})
 
 @router.message(Text(text='Связь'))
 async def contact_us_menu(message: Message):
