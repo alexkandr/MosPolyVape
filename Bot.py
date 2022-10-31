@@ -3,7 +3,7 @@ import asyncio
 from aiogram import Dispatcher, Bot
 from aiogram.fsm.strategy import FSMStrategy
 from aiogram.fsm.storage.memory import MemoryStorage
-from handlers import menu, catalog, cart, address
+from handlers import menu, catalog, cart, address, give_id
 
 TOKEN =  getenv('BOT_TOKEN') if (getenv('BOT_TOKEN') is not None) else open('tokens.txt', 'r').readline().strip()
 
@@ -16,6 +16,7 @@ async def main():
     dp.include_router(catalog.router)
     dp.include_router(cart.router)
     dp.include_router(address.router)
+    dp.include_router(give_id.router)
     
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)

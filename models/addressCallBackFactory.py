@@ -1,5 +1,5 @@
 from typing import Optional
-from aiogram.dispatcher.filters.callback_data import CallbackData
+from aiogram.filters.callback_data import CallbackData
 
 class AddressCallbackFactory(CallbackData, prefix="address"):
     action : str

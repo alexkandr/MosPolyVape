@@ -1,7 +1,7 @@
 from aiogram import Router
 from aiogram.types import Message, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.dispatcher.filters import Text
+from aiogram.filters import Text
 from aiogram.types import FSInputFile
 
 router = Router()

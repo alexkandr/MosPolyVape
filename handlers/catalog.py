@@ -1,8 +1,7 @@
-from os import getenv
 from aiogram import Router, html
 from aiogram.types import Message, CallbackQuery
-from aiogram.dispatcher.filters import Text
-from aiogram.types import FSInputFile, URLInputFile
+from aiogram.filters import Text
+from aiogram.types import FSInputFile
 from db.postgre import postgredb
 from models.ItemCallbackFactory import ItemCallbackFactory
 from keyboards.keyboards import catalog_keyboard, item_keyboard
@@ -15,7 +14,7 @@ async def catalog_menu(message : Message):
     await message.answer_photo(photo=FSInputFile('./source/img/Catalog.png'),
         reply_markup=catalog_keyboard() )
 
-@router.callback_query(Text(text_startswith='catalog_'))
+@router.callback_query(Text(startswith='catalog_'))
 async def show_catalog(call : CallbackQuery):
     
     #Choose appropriate items
@@ -30,7 +29,7 @@ async def show_catalog(call : CallbackQuery):
 
     #Show items
     for item in showing_data:
-        await call.message.answer_photo(photo= URLInputFile(item.image), caption=(item.message_info()),
+        await call.message.answer_photo(photo= item.image, caption=(item.message_info()),
         reply_markup= item_keyboard(0, item.id))
 
     await call.answer()

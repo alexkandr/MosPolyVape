@@ -26,18 +26,7 @@ class DataBase:
                 elif execute:
                     result =  cur.execute(command, *args)
         return result
-    
-    def add_new_parilkas(self, item : parilka) -> None:
-        with self.conn.cursor() as cur:
-            cur.execute(
-                '''insert into sklad (name, description, image, taste, puffs, price, avaible) 
-                values (%s, %s, %s, %s, %s, %s, %s)''', 
-                item.values_as_tuple() )
 
-    def add_existing_parilkas(self, id : int, amount : int) -> None:
-        with self.conn.cursor() as cur:
-            cur.execute(
-                '''update sklad set avaible = avaible + %s where Id = %s''', (amount, id) )
     def buy_some_parilkas(self, id : int, amount : int) -> None:
         with self.conn.cursor() as cur:
             cur.execute(
