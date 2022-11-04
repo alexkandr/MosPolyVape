@@ -2,7 +2,7 @@ from aiogram import Router
 from aiogram.types import Message, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.filters import Text
-from aiogram.types import FSInputFile
+from db.postgre import postgredb
 
 router = Router()
 
@@ -14,7 +14,7 @@ async def cart_menu(message : Message):
     #check cart
     cart_mess = cart_to_string(cart)
     if cart == {}:
-        await message.answer_photo( photo=FSInputFile('./source/img/Empty_cart.png'))
+        await message.answer_photo( photo=postgredb.image_by_name('Empty_cart'))
         return 
 
     #InlineKeyboard setup
@@ -25,7 +25,7 @@ async def cart_menu(message : Message):
     )
 
     #answer
-    await message.answer_photo(photo=FSInputFile('./source/img/Cart.png'),
+    await message.answer_photo(photo=postgredb.image_by_name('Cart'),
         caption= cart_mess, 
         reply_markup=builder.as_markup(resize_keyboard=True))
 

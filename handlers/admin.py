@@ -117,35 +117,55 @@ async def wrong_avaible(message : Message, state : FSMContext):
 #delete item
     
 @router.message(Command(commands=['delete']), F.chat.id.in_(ADMIN_CHAT_ID))
-async def add_item(message : Message, state : FSMContext):
+async def delete_item(message : Message, state : FSMContext):
     names = postgredb.select_all_names()
     m = ''
     for item in names:
         m = m + f"{item['name']} /delete_{item['id']} \n"
-    m = m + '\n /add_new'
     await message.answer(text=m)
 
 
 
 @router.message(Command(re.compile(r'delete_\d+')), F.chat.id.in_(ADMIN_CHAT_ID))
-async def add_exist_item(message : Message,command : CommandObject):
+async def delete_item_id(message : Message,command : CommandObject):
     item_id = command.regexp_match.string.split('_')[1]
     postgredb.delete_by_item_id(item_id)
     await message.reply(text='Удалено')
 
-#give file id
+#save new image to db
 
-@router.message(Command(commands=['give_file_id']), F.chat.id == ADMIN_CHAT_ID)
-async def give_file_id(message : Message, state : FSMContext):
+@router.message(Command(commands=['save_image']), F.chat.id.in_(ADMIN_CHAT_ID))
+async def save_image(message : Message, state : FSMContext):
     await state.set_state(GiveIdState.recieve_image)
-    await message.answer(text=f'Жду картинку')
+    await message.answer(text=f'Жду картинку, с подписью (названием файла)')
 
-@router.message(GiveIdState.recieve_image, F.photo, F.chat.id == ADMIN_CHAT_ID)
-async def derzhi_file_id(message : Message, state : FSMContext):
+@router.message(GiveIdState.recieve_image, F.photo, F.chat.id.in_(ADMIN_CHAT_ID))
+async def get_image_ig(message : Message, state : FSMContext):
+    postgredb.save_image(file_id=message.photo[-1].file_id, file_name=message.caption)
     await state.clear()
-    await message.answer(text=f'Вот твой id \n{message.photo[-1].file_id}')
+    await message.answer(text=f'Сохранил')
     
 
-@router.message(GiveIdState.recieve_image, F.chat.id == ADMIN_CHAT_ID)
-async def derzhi_file_id(message : Message, state : FSMContext):
+@router.message(GiveIdState.recieve_image, F.chat.id.in_(ADMIN_CHAT_ID))
+async def wrong_image_to_save(message : Message, state : FSMContext):
     await message.answer(text='Надо отправить картинку')
+
+
+
+#delete image from db
+
+@router.message(Command(commands=['delete_image']), F.chat.id.in_(ADMIN_CHAT_ID))
+async def delete_image(message : Message, state : FSMContext):
+    images = postgredb.select_all_images()
+    m = ''
+    for img in images:
+        m = m + f"{img['file_name']} /delete_image_{img['id']} \n"
+    await message.answer(text=m)
+
+
+
+@router.message(Command(re.compile(r'delete_image_\d+')), F.chat.id.in_(ADMIN_CHAT_ID))
+async def add_exist_item(message : Message,command : CommandObject):
+    img_id = command.regexp_match.string.split('_')[-1]
+    postgredb.delete_image(img_id)
+    await message.reply(text='Удалено')

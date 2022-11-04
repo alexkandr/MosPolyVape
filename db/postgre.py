@@ -93,4 +93,21 @@ class DataBase:
         with self.conn.cursor() as cur:
             cur.execute(f''' delete from sklad where id = {id}''')
 
+    def save_image(self, file_id : str, file_name : str) -> None:
+        with self.conn.cursor() as cur:
+            cur.execute(f'''insert into images (file_id, file_name) values ('{file_id}', '{file_name}')''')
+    
+    def select_all_images(self) -> list[dict]:
+        with self.conn.cursor(row_factory=dict_row) as cur:
+            return cur.execute(f'''select (file_name, file_id) from images''').fetchall()
+
+    def delete_image(self, id : int) -> None:
+        with self.conn.cursor() as cur:
+            cur.execute(f'''delete from sklad where id = {id}''')
+    
+    def image_by_name(self, file_name : str) -> str:
+        with self.conn.cursor() as cur:
+            return cur.execute(f'''select file_id from images where file_name = '{file_name}' ''').fetchone()[0]
+
+
 postgredb = DataBase()

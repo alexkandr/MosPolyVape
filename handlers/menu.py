@@ -1,15 +1,13 @@
 from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.types import FSInputFile
 from keyboards.keyboards import menu_keyboard, contactus_keyboard
 from aiogram.filters import Command, Text
 from aiogram.fsm.context import FSMContext
-
+from db.postgre import postgredb
 router = Router()
 @router.message(Command(commands=["start"]))
 async def start(message : Message):
-    
-    m = await message.answer_photo(photo=FSInputFile('./source/img/Welcome_Image.png'),
+    m = await message.answer_photo(photo=postgredb.image_by_name('Welcome'),
         caption= f'Это бот для покупки парилок в общаге. feel free to contact us^ enjoy the ПЫХ', 
         reply_markup= menu_keyboard())
     print({message.chat.id})
@@ -17,7 +15,7 @@ async def start(message : Message):
 @router.message(Text(text='Связь'))
 async def contact_us_menu(message: Message):
     
-    await message.answer_photo(photo=FSInputFile('./source/img/Contacts.png'),
+    await message.answer_photo(photo=postgredb.image_by_name('Contacts'),
         caption= 'Что-то не нравится - отсоси ^_^ \n Нахваливать только сообщениями от 1000 символов',
         reply_markup=contactus_keyboard())
 
