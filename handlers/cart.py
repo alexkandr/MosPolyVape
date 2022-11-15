@@ -1,38 +1,38 @@
 from aiogram import Router
-from aiogram.types import Message, InlineKeyboardButton
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Text
 from db.postgre import postgredb
+from db.redis import redisdb
+from models.CartCallBackFactory import CartCallbackFactory
+from keyboards.keyboards import cart_to_inline_markup, item_keyboard
 
 router = Router()
 
-cart = {}
 
 @router.message(Text(text='Корзина'))
 async def cart_menu(message : Message):
     
+    cart = redisdb.get_cart(message.from_user.id)
     #check cart
-    cart_mess = cart_to_string(cart)
     if cart == {}:
         await message.answer_photo( photo=postgredb.image_by_name('Empty_cart'))
         return 
 
-    #InlineKeyboard setup
-    builder = InlineKeyboardBuilder()
-    builder.add(
-        InlineKeyboardButton(text='Очистить Корзину', callback_data='clear'),
-        InlineKeyboardButton(text='Купить', callback_data='buy')
-    )
-
     #answer
     await message.answer_photo(photo=postgredb.image_by_name('Cart'),
-        caption= cart_mess, 
-        reply_markup=builder.as_markup(resize_keyboard=True))
+        reply_markup=cart_to_inline_markup(cart, message.from_user.id))
 
-def cart_to_string(cart) -> str:
-    if cart == {}:
-        return 'Ваша корзина пуста'
-    res = ''
-    for key, value in cart:
-        res += key + '      ' + value + ' штук'
-    return res
+@router.callback_query(CartCallbackFactory.filter())
+async def cart_action(call : CallbackQuery, callback_data : CartCallbackFactory):
+    match callback_data.action:
+        case 'clear':
+            redisdb.clear_cart(callback_data.user_id)
+            await call.answer(text='', show_alert=True)
+        case 'buy':
+            order = redisdb.clear_cart(callback_data.user_id)
+            await call.answer()
+        case 'info':
+            await  call.answer()
+    
+    await call.message.edit_reply_markup(reply_markup=cart_to_inline_markup(redisdb.get_cart(call.from_user.id), call.from_user.id))
+        

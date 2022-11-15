@@ -2,6 +2,8 @@ from aiogram.types import ReplyKeyboardMarkup,InlineKeyboardMarkup, KeyboardButt
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from models.addressCallBackFactory import AddressCallbackFactory
 from models.ItemCallbackFactory import ItemCallbackFactory
+from models.CartCallBackFactory import CartCallbackFactory
+from db.postgre import postgredb
 
 
 
@@ -81,6 +83,39 @@ def catalog_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 def item_keyboard(amount : int, item_id : int) -> InlineKeyboardMarkup:
+    
+    builder = InlineKeyboardBuilder()
+    
+    builder.button(text="-1", callback_data=ItemCallbackFactory(action='decr', amount=amount, item_id=item_id))
+    builder.button(text=str(amount), callback_data=ItemCallbackFactory(action='none', amount=amount, item_id=item_id))
+    builder.button(text="+1", callback_data=ItemCallbackFactory(action='incr', amount=amount, item_id=item_id))
+    
+    builder.button(text='В корзину', callback_data=ItemCallbackFactory(action='to_cart', amount=amount, item_id=item_id))
+    
+    builder.adjust(3)
+
+    return builder.as_markup(resize_keyboard=True)
+
+
+def cart_to_inline_markup(cart, user_id : int) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    sum = 0
+    for id, amount in cart.items():
+        item = postgredb.select_by_id(id)
+        t_price = item.price * int(amount)
+        builder.button(text=f'{item.name.ljust(10)} {amount}шт * {item.price}руб = {t_price}руб', 
+            callback_data=CartCallbackFactory(action='info', user_id=user_id, item=item.id))
+        sum += t_price
+    
+    builder.button(text='Очистить Корзину', callback_data=CartCallbackFactory(action='clear', user_id=user_id))
+    builder.button(text=f'Купить всё за {sum}руб', callback_data=CartCallbackFactory(action='clear', user_id=user_id))
+
+    builder.adjust(1)
+
+    return builder.as_markup(resize_keyboard=True)
+
+
+def cart_item_keyboard(amount : int, item_id : int) -> InlineKeyboardMarkup:
     
     builder = InlineKeyboardBuilder()
     

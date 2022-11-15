@@ -2,6 +2,7 @@ from aiogram import Router, html
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Text
 from db.postgre import postgredb
+from db.redis import redisdb
 from models.ItemCallbackFactory import ItemCallbackFactory
 from keyboards.keyboards import catalog_keyboard, item_keyboard
 
@@ -49,6 +50,7 @@ async def callback_catalog(call : CallbackQuery, callback_data : ItemCallbackFac
             pass
         case 'to_cart':
             await update_item_markup(call.message, 0, callback_data.item_id)
+            redisdb.add_to_cart(user_id=call.from_user.id, item_id=callback_data.item_id, amount= callback_data.amount)
             await call.answer(text=f'в корзину добавлено {callback_data.amount} парилок', show_alert=True)
             return
     await call.answer()

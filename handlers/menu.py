@@ -10,7 +10,6 @@ async def start(message : Message):
     m = await message.answer_photo(photo=postgredb.image_by_name('Welcome'),
         caption= f'Это бот для покупки парилок в общаге. feel free to contact us^ enjoy the ПЫХ', 
         reply_markup= menu_keyboard())
-    print({message.chat.id})
 
 @router.message(Text(text='Связь'))
 async def contact_us_menu(message: Message):
