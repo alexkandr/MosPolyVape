@@ -24,7 +24,7 @@ class parilka:
         self.taste = taste
         self.avaible = avaible
 
-    def __init__(self, id : int, name: str ='', description: str ='', 
+    def __init__(self, id : int = 0, name: str ='', description: str ='', 
     image : str ='', taste: str ='', puffs: int = 0, price : Decimal = 0, avaible : int = 0) -> None:
         self.id = id
         self.name = name

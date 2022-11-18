@@ -1,6 +1,6 @@
 from aiogram import Router, html
 from aiogram.types import Message, CallbackQuery
-from aiogram.filters import Text
+from aiogram.filters import Text, Command
 from db.postgre import postgredb
 from db.redis import redisdb
 from models.ItemCallbackFactory import ItemCallbackFactory
@@ -9,6 +9,7 @@ from keyboards.keyboards import catalog_keyboard, item_keyboard
 router = Router()
 
 @router.message(Text(text='Каталог'))
+@router.message(Command(commands=['catalog']))
 async def catalog_menu(message : Message):
     
     await message.answer_photo(photo=postgredb.image_by_name('Catalog'),

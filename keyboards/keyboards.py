@@ -26,7 +26,7 @@ def addresses_keyboard(addresses : list[dict], remove : bool = False) -> InlineK
     
     builder = InlineKeyboardBuilder()
     for i, address in enumerate(addresses): 
-        builder.button(text= dict_to_str(address), callback_data=AddressCallbackFactory(action='address', address_index=i))   
+        builder.button(text= dict_to_str(address), callback_data=AddressCallbackFactory(action='address', address_index=i, address_id=address['id']))   
     
     if remove == True:
         builder.button(text='Отмена', callback_data=AddressCallbackFactory(action='cancel', address_index=None))
@@ -42,6 +42,13 @@ def addresses_keyboard(addresses : list[dict], remove : bool = False) -> InlineK
 def dict_to_str(address : dict) -> str:
     return f'Общежитие {str(address["obshaga"])}, комната {str(address["room_number"])}'
 
+def payment_method() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Наличными при получении', callback_data='cash')
+    builder.button(text='Переводом при получении', callback_data='transfer')
+    builder.button(text='Отмена', callback_data='cancel')
+    builder.adjust(1)
+    return builder.as_markup()
 
 
 #Menu.py
@@ -97,34 +104,50 @@ def item_keyboard(amount : int, item_id : int) -> InlineKeyboardMarkup:
     return builder.as_markup(resize_keyboard=True)
 
 
-def cart_to_inline_markup(cart, user_id : int) -> InlineKeyboardMarkup:
+#cart.py
+
+def cart_keyboard(cart : dict, user_id : int) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
+    if cart == {}:
+        return builder.as_markup()
+
     sum = 0
     for id, amount in cart.items():
         item = postgredb.select_by_id(id)
         t_price = item.price * int(amount)
         builder.button(text=f'{item.name.ljust(10)} {amount}шт * {item.price}руб = {t_price}руб', 
-            callback_data=CartCallbackFactory(action='info', user_id=user_id, item=item.id))
+            callback_data=CartCallbackFactory(action='info', user_id=user_id, item_id=item.id, amount=amount))
         sum += t_price
     
     builder.button(text='Очистить Корзину', callback_data=CartCallbackFactory(action='clear', user_id=user_id))
-    builder.button(text=f'Купить всё за {sum}руб', callback_data=CartCallbackFactory(action='clear', user_id=user_id))
+    builder.button(text=f'Купить всё за {sum}руб', callback_data=CartCallbackFactory(action='buy', user_id=user_id))
 
     builder.adjust(1)
 
     return builder.as_markup(resize_keyboard=True)
 
 
-def cart_item_keyboard(amount : int, item_id : int) -> InlineKeyboardMarkup:
+def item_in_cart_keyboard(amount : int, item_id : int, user_id : int) -> InlineKeyboardMarkup:
     
     builder = InlineKeyboardBuilder()
     
-    builder.button(text="-1", callback_data=ItemCallbackFactory(action='decr', amount=amount, item_id=item_id))
-    builder.button(text=str(amount), callback_data=ItemCallbackFactory(action='none', amount=amount, item_id=item_id))
-    builder.button(text="+1", callback_data=ItemCallbackFactory(action='incr', amount=amount, item_id=item_id))
+    builder.button(text="-1", callback_data=CartCallbackFactory(action='decr', user_id=user_id, amount=amount, item_id=item_id))
+    builder.button(text=str(amount), callback_data=CartCallbackFactory(action='none', user_id=user_id, amount=amount, item_id=item_id))
+    builder.button(text="+1", callback_data=CartCallbackFactory(action='incr', user_id=user_id, amount=amount, item_id=item_id))
     
-    builder.button(text='В корзину', callback_data=ItemCallbackFactory(action='to_cart', amount=amount, item_id=item_id))
-    
+    builder.button(text='Удалить из корзины', callback_data=CartCallbackFactory(action='delete', user_id=user_id, amount=amount, item_id=item_id))
     builder.adjust(3)
+    builder.button(text='Сохранить', callback_data=CartCallbackFactory(action='save', user_id=user_id, amount=amount, item_id=item_id))
 
     return builder.as_markup(resize_keyboard=True)
+
+
+
+#purchase.py
+
+def acceptance_form() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Подтверждаю заказ', callback_data='Accept')
+    builder.button(text='Изменить заказ', callback_data='change')
+    builder.adjust(1)
+    return builder.as_markup()

@@ -8,7 +8,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters import Text
 from db.postgre import postgredb
 from models.adressFSM import AddressState
-from keyboards.keyboards import addresses_keyboard, obshaga_keyboard , menu_keyboard, cancel_keyboard
+from models.purchaseFSM import PurchaseState
+from keyboards.keyboards import addresses_keyboard, obshaga_keyboard , menu_keyboard, cancel_keyboard, payment_method
 
 router = Router()
 obshagas = ['4']
@@ -69,8 +70,12 @@ async def will_to_change_address(call : CallbackQuery, callback_data : AddressCa
 
     match callback_data.action:
         case 'address':
-            await call.answer()
-            return
+            if (await state.get_state()) == PurchaseState.ChooseAddress:
+                await state.set_state(PurchaseState.PaymentMethod)
+                await state.update_data(chosen_address = callback_data.address_id)
+                await call.message.answer_photo(photo=postgredb.image_by_name('Payment_method'),
+                    caption='', reply_markup=payment_method())
+                await call.message.delete()  
 
         case 'remove':
             await state.set_state(AddressState.delete_address)

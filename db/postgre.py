@@ -1,6 +1,7 @@
 from os import getenv
 import psycopg
 from models.item import parilka
+from models.order import order
 from psycopg.rows import class_row
 from psycopg.rows import dict_row
 
@@ -56,6 +57,10 @@ class DataBase:
     def get_addresses_by_user_id(self, user_id : int) -> list[dict]:
         with self.conn.cursor(row_factory=dict_row) as cur:
             return cur.execute(f'select * from addresses where user_id = {user_id}').fetchall()
+        
+    def get_address_by_id(self, id : int) -> dict:
+        with self.conn.cursor(row_factory=dict_row) as cur:
+            return cur.execute(f'select * from addresses where id = {id}').fetchone()
 
     def delete_addresses_by_user_id(self, user_id : int):
         with self.conn.cursor(row_factory=dict_row) as cur:
@@ -108,6 +113,19 @@ class DataBase:
     def image_by_name(self, file_name : str) -> str:
         with self.conn.cursor() as cur:
             return cur.execute(f'''select file_id from images where file_name = '{file_name}' ''').fetchone()[0]
+
+    def save_order(self, order : order) -> int:
+        with self.conn.cursor() as cur:
+            cur.execute(
+                '''insert into orders (user_id, address_id, total_sum, payment_method, status, creating_time) 
+                values ( %s, %s, %s, %s, %s, %s) returning id''', 
+                order.values_as_tuple() )
+            return cur.fetchone()[0]
+
+    def save_ordered_items(self, cart : dict, order_id : int) -> None:
+        with self.conn.cursor() as cur:
+            for item_id, amount in cart.items():
+                cur.execute(f'''insert into ordered_items (order_id, item_id, amount) values ({order_id}, {item_id}, {amount})''')
 
 
 postgredb = DataBase()
