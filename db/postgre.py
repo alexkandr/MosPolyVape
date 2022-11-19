@@ -127,5 +127,10 @@ class DataBase:
             for item_id, amount in cart.items():
                 cur.execute(f'''insert into ordered_items (order_id, item_id, amount) values ({order_id}, {item_id}, {amount})''')
 
+    def select_orders(self, status : str = '') -> list[order]:
+        with self.conn.cursor(row_factory=class_row(order)) as cur:
+            filter = f"where status = '{status}'" if status != '' else ''
+            return cur.execute(f'''select * from orders {filter}''').fetchall()
+
 
 postgredb = DataBase()

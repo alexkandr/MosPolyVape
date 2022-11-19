@@ -8,6 +8,7 @@ from db.postgre import postgredb
 from models.adminFSM import itemState
 from models.give_idFSM import GiveIdState
 from models.item import parilka
+from models.order import order
 
 router = Router()
 
@@ -169,3 +170,15 @@ async def add_exist_item(message : Message,command : CommandObject):
     img_id = command.regexp_match.string.split('_')[-1]
     postgredb.delete_image(img_id)
     await message.reply(text='Удалено')
+
+@router.message(Command(re.compile(r'orders[_w+\b]?')), F.chat.id.in_(ADMIN_CHAT_ID))
+async def list_orders(message : Message, command : CommandObject):
+    filter = command.regexp_match.string.split('_')[-1]
+    filter = filter if filter!= 'orders' else ''
+    reply = 'id  | сумма |   статус   | Время создания'
+    for order in postgredb.select_orders(filter):
+        reply+= order_to_str(order)
+    await message.answer(text=reply)
+
+def order_to_str(order : order) -> str:
+    return f"\n{str(order.id).ljust(4)} | {str(order.total_sum).rjust(6)} | {order.status.center(10)} | {order.creating_time.strftime('%d/%m/%y %I:%M').ljust(14)}"

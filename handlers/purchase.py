@@ -53,7 +53,7 @@ async def accept(call : CallbackQuery, state : FSMContext):
 async def AcceptanceForm(call : CallbackQuery, state: FSMContext):
     data = await state.get_data()
     address = postgredb.get_address_by_id(data['chosen_address'])
-    purchases = await cart_to_string(redisdb.get_cart(call.from_user.id))
+    purchases = await cart_to_str(redisdb.get_cart(call.from_user.id))
     await call.message.answer(
         text=f'''Давай всё проверим:
         Адрес: 
@@ -67,7 +67,7 @@ async def AcceptanceForm(call : CallbackQuery, state: FSMContext):
     )
     return order(user_id=call.from_user.id, address_id=data['chosen_address'], total_sum=purchases[1], payment_method=data['payment_method'])
 
-async def cart_to_string(cart : dict):
+async def cart_to_str(cart : dict):
     purchases = ''
     sum = 0
     for id, amount in cart.items():
