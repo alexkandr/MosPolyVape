@@ -1,7 +1,7 @@
 import redis
 from os import getenv
 
-REDIS_DB_URL = getenv('RDIS_DB_URL') if getenv('REDIS_DB_URL') is not None else open('tokens.txt', 'r').readlines()[2].strip()
+REDIS_DB_URL = getenv('REDIS_DB_URL') if getenv('REDIS_DB_URL') is not None else open('tokens.txt', 'r').readlines()[2].strip()
 
 class DATABASE:
     def __init__(self):
