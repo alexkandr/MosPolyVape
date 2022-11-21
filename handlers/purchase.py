@@ -2,14 +2,16 @@ from aiogram import Router
 from aiogram.methods import SendMessage
 from aiogram.types import  CallbackQuery
 from aiogram.fsm.context import FSMContext
-from models.purchaseFSM import PurchaseState
-from models.order import order
-from db.postgre import postgredb
-from db.redis import redisdb
-from keyboards.keyboards import acceptance_form
+
+from models.keyboards import PurchaseKeyboards
+from models.fsm import PurchaseState
+from models.dao import OrderDAO
+from models.db import cart_rep, orders_tab, ordered_items_tab, addresses_tab, sklad_tab
 from handlers.admin import ADMIN_CHAT_ID
 
+
 router = Router()
+
 
 @router.callback_query(PurchaseState.PaymentMethod)
 async def payment_method(call : CallbackQuery, state : FSMContext):
@@ -17,11 +19,11 @@ async def payment_method(call : CallbackQuery, state : FSMContext):
         case 'cash':
             await state.update_data(payment_method='cash')
             await state.set_state(PurchaseState.Accept)
-            await state.update_data(order = await AcceptanceForm(call=call, state=state))
+            await state.update_data(order=await AcceptanceForm(call=call, state=state))
         case 'transfer':
             await state.update_data(payment_method='transfer')
             await state.set_state(PurchaseState.Accept)
-            await state.update_data(order = await AcceptanceForm(call=call, state=state))
+            await state.update_data(order=await AcceptanceForm(call=call, state=state))
         case 'SBP':
             pass
         case 'cancel':
@@ -35,10 +37,10 @@ async def accept(call : CallbackQuery, state : FSMContext):
     match call.data:
         case 'Accept':
             order = (await state.get_data())['order']
-            order_id = postgredb.save_order(order)
-            cart = redisdb.get_cart(call.from_user.id)
-            postgredb.save_ordered_items(cart, order_id)
-            redisdb.clear_cart(call.from_user.id)
+            order_id = await orders_tab.add(order)
+            cart = await cart_rep.get_cart(call.from_user.id)
+            await ordered_items_tab.add_cart(cart, order_id)
+            await cart_rep.clear_cart(call.from_user.id)
             await state.clear()
             await SendMessage(chat_id=ADMIN_CHAT_ID[0], 
             text=f'''Поступил новый заказ номер {order_id} на сумму {order.total_sum}
@@ -52,8 +54,8 @@ async def accept(call : CallbackQuery, state : FSMContext):
 
 async def AcceptanceForm(call : CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    address = postgredb.get_address_by_id(data['chosen_address'])
-    purchases = await cart_to_str(redisdb.get_cart(call.from_user.id))
+    address = await addresses_tab.get_by_id(data['chosen_address'])
+    purchases = await cart_to_str(await cart_rep.get_cart(call.from_user.id))
     await call.message.answer(
         text=f'''Давай всё проверим:
         Адрес: 
@@ -63,15 +65,15 @@ async def AcceptanceForm(call : CallbackQuery, state: FSMContext):
             {purchases[1]} рублей
         Способ оплаты:
             {data['payment_method']}''',
-        reply_markup=acceptance_form()
+        reply_markup=PurchaseKeyboards.get_acceptance_form()
     )
-    return order(user_id=call.from_user.id, address_id=data['chosen_address'], total_sum=purchases[1], payment_method=data['payment_method'])
+    return OrderDAO(user_id=call.from_user.id, address_id=data['chosen_address'], total_sum=purchases[1], payment_method=data['payment_method'])
 
 async def cart_to_str(cart : dict):
     purchases = ''
     sum = 0
     for id, amount in cart.items():
-        item = postgredb.select_by_id(id)
+        item = await sklad_tab.get_by_id(id)
         purchases += f"\n{' '*12}{item.name} : {amount} штук по {item.price}руб"
         sum += item.price*int(amount)
     return (purchases, sum)
